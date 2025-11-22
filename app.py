@@ -203,13 +203,14 @@ if "table_data" in st.session_state:
 
     table_data = st.session_state["table_data"].copy()
 
+    # Select kategori berdasarkan kolom yang benar
     category_filter = st.selectbox(
         "Filter berdasarkan kategori topik",
-        ["Semua"] + list(table_data["Kategori"].unique())
+        ["Semua"] + list(table_data["🏷 Kategori"].unique())
     )
 
     if category_filter != "Semua":
-        table_data = table_data[table_data["Kategori"] == category_filter]
+        table_data = table_data[table_data["🏷 Kategori"] == category_filter]
 
     if len(table_data) == 0:
         st.warning("Tidak ada konten yang cocok dengan filter 😭")
@@ -230,19 +231,18 @@ if "table_data" in st.session_state:
         """)
 
         gb = GridOptionsBuilder.from_dataframe(table_data)
-        gb.configure_column("No", width=60)
-        gb.configure_column("Akun", width=180)
+        gb.configure_column("🔎 No", width=60)
+        gb.configure_column("📌 Akun", width=180)
         gb.configure_column(
-            "Caption",
+            "📖 Caption",
             width=130,
             wrapText=True
         )
-        gb.configure_column("Kategori", width=160)
-        gb.configure_column("Skor", width=120)
-        gb.configure_column("Link", cellRenderer=link_renderer, width=120)
+        gb.configure_column("🏷 Kategori", width=160)
+        gb.configure_column("⭐ Skor", width=120)
+        gb.configure_column("🔗 Link", cellRenderer=link_renderer, width=120)
 
         gridOptions = gb.build()
-
 
         AgGrid(
             table_data,
@@ -252,6 +252,8 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
+
 
 
 
