@@ -183,7 +183,7 @@ if st.sidebar.button("✨ Tampilkan Rekomendasi"):
             return text[:max_chars] + "..." if len(text) > max_chars else text
 
         table_data = pd.DataFrame({
-            "🔎 No": range(1, len(results)+1),
+            "No": range(1, len(results)+1),
             "📌 Akun": results["account"].fillna(""),
             "📖 Caption": results["clean_caption_v2"].fillna("").apply(truncate),
             "🏷 Kategori": results["topic_category"],
@@ -194,7 +194,7 @@ if st.sidebar.button("✨ Tampilkan Rekomendasi"):
         st.session_state["table_data"] = table_data
 
         st.markdown(
-            f'<h3 class="mobile-title">🎯 Hai Kak <b>{nama}</b>, berikut rekomendasi terbaik untuk kategori <b>{tipe_dm_label}</b></h3>',
+            f'<h6 class="mobile-title">🎯 Hai Kak <b>{nama}</b>, berikut rekomendasi terbaik untuk kategori <b>{tipe_dm_label}</b></h6>',
             unsafe_allow_html=True
         )
 
@@ -231,15 +231,15 @@ if "table_data" in st.session_state:
         """)
 
         gb = GridOptionsBuilder.from_dataframe(table_data)
-        gb.configure_column("🔎 No", width=60)
-        gb.configure_column("📌 Akun", width=180)
+        gb.configure_column("No", width=60)
+        gb.configure_column("📌 Akun", width=120)
         gb.configure_column(
             "📖 Caption",
             width=130,
             wrapText=True
         )
-        gb.configure_column("🏷 Kategori", width=160)
-        gb.configure_column("⭐ Skor", width=120)
+        gb.configure_column("🏷 Kategori", width=120)
+        gb.configure_column("⭐ Skor", width=100)
         gb.configure_column("🔗 Link", cellRenderer=link_renderer, width=120)
 
         gridOptions = gb.build()
@@ -252,6 +252,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
