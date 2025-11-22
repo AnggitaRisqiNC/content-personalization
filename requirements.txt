@@ -1,0 +1,7 @@
+streamlit
+streamlit-aggrid
+pandas
+scikit-learn
+joblib
+numpy
+supabase
