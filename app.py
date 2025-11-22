@@ -232,14 +232,14 @@ if "table_data" in st.session_state:
 
         gb = GridOptionsBuilder.from_dataframe(table_data)
         gb.configure_column("No", width=60)
-        gb.configure_column("📌 Akun", width=120)
+        gb.configure_column("📌 Akun", width=100)
         gb.configure_column(
             "📖 Caption",
             width=130,
             wrapText=True
         )
-        gb.configure_column("🏷 Kategori", width=120)
-        gb.configure_column("⭐ Skor", width=100)
+        gb.configure_column("🏷 Kategori", width=110)
+        gb.configure_column("⭐ Skor", width=80)
         gb.configure_column("🔗 Link", cellRenderer=link_renderer, width=120)
 
         gridOptions = gb.build()
@@ -252,6 +252,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
