@@ -13,27 +13,19 @@ import nltk
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
-
 st.markdown("""
-    <style>
-        /* Biar semua font lebih kecil di HP */
-        @media (max-width: 768px) {
-            .st-emotion-cache-10oheav, .st-emotion-cache-16idsys {
-                font-size: 14px !important;
-            }
-            .ag-cell {
-                font-size: 12px !important;
-                padding: 4px !important;
-            }
-            .ag-header-cell-label {
-                font-size: 12px !important;
-            }
-            .block-container {
-                padding-left: 10px !important;
-                padding-right: 10px !important;
-            }
-        }
-    </style>
+<style>
+@media (max-width: 768px) {
+    /* Font tetap kecil */
+    .ag-cell, .ag-header-cell-label {
+        font-size: 12px !important;
+    }
+    /* Biar bisa scroll horizontal */
+    .ag-root-wrapper {
+        overflow-x: auto !important;
+    }
+}
+</style>
 """, unsafe_allow_html=True)
 
 # --- APP CONFIG ---
@@ -186,7 +178,7 @@ if st.sidebar.button("✨ Tampilkan Rekomendasi"):
             "No": range(1, len(results)+1),
             "📌 Akun": results["account"].fillna(""),
             "📖 Caption": results["clean_caption_v2"].fillna("").apply(truncate),
-            "🏷 Kategori": results["topic_category"],
+            "🔍 Kategori": results["topic_category"],
             "⭐ Skor": results[score_col].round(4),
             "🔗 Link": results["url"].fillna("")
         })
@@ -206,11 +198,11 @@ if "table_data" in st.session_state:
     # Select kategori berdasarkan kolom yang benar
     category_filter = st.selectbox(
         "Filter berdasarkan kategori topik",
-        ["Semua"] + list(table_data["🏷 Kategori"].unique())
+        ["Semua"] + list(table_data["🔍 Kategori"].unique())
     )
 
     if category_filter != "Semua":
-        table_data = table_data[table_data["🏷 Kategori"] == category_filter]
+        table_data = table_data[table_data["🔍 Kategori"] == category_filter]
 
     if len(table_data) == 0:
         st.warning("Tidak ada konten yang cocok dengan filter 😭")
@@ -231,6 +223,7 @@ if "table_data" in st.session_state:
         """)
 
         gb = GridOptionsBuilder.from_dataframe(table_data)
+        gb.configure_default_column(resizable=True)
         gb.configure_column("No", width=60)
         gb.configure_column("📌 Akun", width=100)
         gb.configure_column(
@@ -238,7 +231,7 @@ if "table_data" in st.session_state:
             width=130,
             wrapText=True
         )
-        gb.configure_column("🏷 Kategori", width=110)
+        gb.configure_column("🔍 Kategori", width=110)
         gb.configure_column("⭐ Skor", width=80)
         gb.configure_column("🔗 Link", cellRenderer=link_renderer, width=120)
 
@@ -247,11 +240,12 @@ if "table_data" in st.session_state:
         AgGrid(
             table_data,
             gridOptions=gridOptions,
-            fit_columns_on_grid_load=True,
+            fit_columns_on_grid_load=False,
             height=480,
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
