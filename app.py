@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import requests
+from io import StringIO
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -227,3 +229,4 @@ if "table_data" in st.session_state:
             allow_unsafe_jscode=True
 
         )
+
