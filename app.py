@@ -87,9 +87,9 @@ stopwords_all = nltk_stop | sastrawi_stop | ENGLISH_STOP_WORDS | custom_ui_stopw
 
 # TOPIC DICTIONARY
 topics_by_type = {
-    "Edukasi Medis": ["gejala", "insulin", "hipoglikemia", "hiperglikemia", "komplikasi", "gula darah", "autoimun", "antibodi", "kekurangan insulin", "onset muda", "ketoasidosis", "injeksi insulin", "pankreas", "sel beta", "komplikasi", "resiko", "edukasi", "diagnosis", "kontrol", "gestasional", "hamil"],
-    "Nutrisi": ["makan", "makanan", "diet", "kalori", "karbo", "gizi", "protein", "sehat", "pola makan", "menu", "menu sehat", "obesitas"],
-    "Lifestyle": ["olahraga", "aktif", "jalan", "hidup sehat", "skrining", "manajemen gula", "gaya hidup", "pencegahan", "deteksi dini", "sehat"]
+    "Edukasi Medis": ["gejala", "diabetes tipe", "insulin", "hipoglikemia", "hiperglikemia", "komplikasi", "gula darah", "autoimun", "antibodi", "kekurangan insulin", "onset muda", "ketoasidosis", "injeksi insulin", "pankreas", "sel beta", "komplikasi", "resiko", "edukasi", "diagnosis", "kontrol", "gestasional", "hamil", "autoantibody"],
+    "Nutrisi": ["makan", "makanan", "diet", "kalori", "karbo", "gizi", "protein", "sehat", "pola makan", "menu", "menu sehat", "obesitas", "makanan bergizi", "nutrisi", "gemuk"],
+    "Lifestyle": ["olahraga", "aktif", "jalan", "hidup sehat", "skrining", "manajemen gula", "gaya hidup", "pencegahan", "deteksi dini", "sehat", "stress", "senam", "jogging", "aktivitas"]
 }
 
 # LOAD DATA
@@ -252,6 +252,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
