@@ -14,6 +14,28 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 
+st.markdown("""
+    <style>
+        /* Biar semua font lebih kecil di HP */
+        @media (max-width: 768px) {
+            .st-emotion-cache-10oheav, .st-emotion-cache-16idsys {
+                font-size: 14px !important;
+            }
+            .ag-cell {
+                font-size: 12px !important;
+                padding: 4px !important;
+            }
+            .ag-header-cell-label {
+                font-size: 12px !important;
+            }
+            .block-container {
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- APP CONFIG ---
 st.set_page_config(page_title="🩺 Edukasi Diabetes — Recommender", layout="wide")
 
@@ -91,7 +113,7 @@ def fit_vectorizer(texts, max_features=5000, ngram=(1,2)):
     return vec, X
 
 # UI
-st.title("🩺 Sistem Rekomendasi Konten Edukasi Diabetes")
+st.header("🩺 Sistem Rekomendasi Konten Edukasi Diabetes")
 st.sidebar.header("Isi data kamu dulu 😊")
 
 nama = st.sidebar.text_input("Nama Lengkap")
@@ -161,20 +183,20 @@ if st.sidebar.button("✨ Tampilkan Rekomendasi"):
             return text[:max_chars] + "..." if len(text) > max_chars else text
 
         table_data = pd.DataFrame({
-            "No": range(1, len(results)+1),
-            "Akun": results["account"].fillna(""),
-            "Caption": results["clean_caption_v2"].fillna("").apply(truncate),
-            "Kategori": results["topic_category"],
-            "Skor": results[score_col].round(4),
-            "Link": results["url"].fillna("")
+            "🔎 No": range(1, len(results)+1),
+            "📌 Akun": results["account"].fillna(""),
+            "📖 Caption": results["clean_caption_v2"].fillna("").apply(truncate),
+            "🏷 Kategori": results["topic_category"],
+            "⭐ Skor": results[score_col].round(4),
+            "🔗 Link": results["url"].fillna("")
         })
 
         st.session_state["table_data"] = table_data
 
         st.markdown(
-            f"### 🎯 Hai Kak **{nama}**, berikut rekomendasi terbaik untuk kategori **{tipe_dm_label}**"
+            f'<h3 class="mobile-title">🎯 Hai Kak <b>{nama}</b>, berikut rekomendasi terbaik untuk kategori <b>{tipe_dm_label}</b></h3>',
+            unsafe_allow_html=True
         )
-        
 
 # DISPLAY TABLE & FILTER
 if "table_data" in st.session_state:
@@ -213,8 +235,7 @@ if "table_data" in st.session_state:
         gb.configure_column(
             "Caption",
             width=130,
-            wrapText=True,
-            autoHeight=True
+            wrapText=True
         )
         gb.configure_column("Kategori", width=160)
         gb.configure_column("Skor", width=120)
@@ -226,10 +247,12 @@ if "table_data" in st.session_state:
         AgGrid(
             table_data,
             gridOptions=gridOptions,
+            fit_columns_on_grid_load=True,
             height=480,
             theme='alpine',
             allow_unsafe_jscode=True
-
         )
+
+
 
 
