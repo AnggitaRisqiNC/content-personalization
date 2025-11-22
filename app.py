@@ -70,21 +70,19 @@ topics_by_type = {
     "Lifestyle": ["olahraga", "aktif", "jalan", "hidup sehat", "skrining", "manajemen gula", "gaya hidup", "pencegahan", "deteksi dini", "sehat"]
 }
 
-# LOAD DATA (local + fallback GitHub)
+# LOAD DATA
 @st.cache_data
-def load_data(path="multi_type_predictions.csv"):
-    try:
-        # coba baca file lokal
-        df = pd.read_csv(path)
-    except:
-        # kalau gagal, fallback ke GitHub
-        url = "https://raw.githubusercontent.com/AnggitaRisqiNC/content-personalization/refs/heads/main/multi_type_predictions.csv"
-        response = requests.get(url)
-        if response.status_code == 200:
-            df = pd.read_csv(StringIO(response.text))
-        else:
-            st.error("Gagal memuat CSV dari lokal maupun GitHub 😭")
-            return None
+def load_data():
+    url = "https://raw.githubusercontent.com/AnggitaRisqiNC/content-personalization/refs/heads/main/multi_type_predictions.csv"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        df = pd.read_csv(StringIO(response.text))
+        df = df.dropna(subset=["clean_caption_v2"]).reset_index(drop=True)
+        return df
+    else:
+        st.error("Gagal memuat data dari GitHub 😭")
+        return None
             
 @st.cache_data
 def fit_vectorizer(texts, max_features=5000, ngram=(1,2)):
@@ -114,7 +112,11 @@ tipe_dm_csv = label_to_csv_value[tipe_dm_label]
 
 # LOAD TF-IDF
 with st.spinner("Loading data & fitting TF-IDF..."):
-    df = load_data("multi_type_predictions.csv")
+    df = load_data()
+
+    if df is None:
+        st.stop()
+
     vectorizer, tfidf_matrix = fit_vectorizer(df["clean_caption_v2"].astype(str))
 
 # TOP K SLIDER
@@ -229,4 +231,5 @@ if "table_data" in st.session_state:
             allow_unsafe_jscode=True
 
         )
+
 
