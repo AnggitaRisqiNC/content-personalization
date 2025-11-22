@@ -1,8 +1,9 @@
 streamlit
 streamlit-aggrid
 pandas
-scikit-learn
-joblib
 numpy
+scikit-learn
+requests
+joblib
 nltk
-nltk-Sastrawi
+Sastrawi
