@@ -87,7 +87,7 @@ topics_by_type = {
 # LOAD DATA
 @st.cache_data
 def load_data():
-    url = "https://raw.githubusercontent.com/AnggitaRisqiNC/content-personalization/refs/heads/main/multi_type_predictions.csv"
+    url = "https://raw.githubusercontent.com/AnggitaRisqiNC/content-personalization/refs/heads/main/data_postdiabetes.csv"
     response = requests.get(url)
 
     if response.status_code == 200:
@@ -165,7 +165,7 @@ if st.sidebar.button("✨ Tampilkan Rekomendasi"):
 
         score_col = score_map[tipe_dm_csv]
 
-        df_filtered = df[df["predicted_type"] == tipe_dm_csv]
+        df_filtered = df[df["predicted_type_new"] == tipe_dm_csv]
         df_filtered = df_filtered.sort_values(score_col, ascending=False)
         results = df_filtered.head(top_k).copy()
 
@@ -245,6 +245,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
