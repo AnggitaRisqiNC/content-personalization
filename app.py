@@ -108,16 +108,22 @@ def fit_vectorizer(texts, max_features=5000, ngram=(1,2)):
 st.header("🩺 Sistem Rekomendasi Konten Edukasi Diabetes")
 st.sidebar.header("Isi data kamu dulu 😊")
 
-nama = st.sidebar.text_input("Nama Lengkap")
-usia = st.sidebar.number_input("Usia", min_value=1, max_value=120)
+nama = st.sidebar.text_input("Nama Kamu")
+usia = st.sidebar.number_input("Usia Kamu", min_value=1, max_value=120)
 jenjang = st.sidebar.selectbox("Jenjang Pendidikan", ["SD", "SMP", "SMA/SMK", "D3", "S1", "S2", "S3"])
 jenis_kelamin = st.sidebar.selectbox("Jenis Kelamin", ["Laki-laki", "Perempuan"])
-tipe_dm_label = st.sidebar.selectbox("Tipe Diabetes", ["Tipe 1", "Tipe 2", "Umum"])
-lama_dm = st.sidebar.text_input("Lama menderita diabetes (misal: 2 tahun)")
+tipe_dm_label = st.sidebar.selectbox("Tipe yang ingin dicari", ["Tipe 1", "Tipe 2", "Edukasi Umum"])
+
+# Kotak Peringatan (Warning Box)
+st.markdown("""
+<div class="warning-box">
+    ⚠️ Hasil rekomendasi ini berbasis kemiripan teks dan bukan merupakan saran medis resmi
+</div>
+""", unsafe_allow_html=True)
 
 # UI → CSV mapping
 label_to_csv_value = {
-    "Umum": "Umum",
+    "Edukasi Umum": "Umum",
     "Tipe 1": "Tipe1",
     "Tipe 2": "Tipe2"
 }
@@ -151,7 +157,7 @@ def get_dominant_topic(text):
     return best_topic
 
 # BUTTON
-if st.sidebar.button("✨ Tampilkan Rekomendasi"):
+if st.sidebar.button("✨ Tampilkan Rekomendasi", type="primary"):
 
     if not nama:
         st.warning("Isi nama dulu ya 😅")
@@ -245,6 +251,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
