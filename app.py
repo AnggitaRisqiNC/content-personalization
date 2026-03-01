@@ -41,7 +41,7 @@ st.markdown("""
     border-radius: 5px;
     color: #000000;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 13px;
     margin: 10px 0px;
 }
 </style>
@@ -132,7 +132,7 @@ nama = st.sidebar.text_input("Nama Kamu")
 usia = st.sidebar.number_input("Usia Kamu", min_value=1, max_value=120)
 jenjang = st.sidebar.selectbox("Jenjang Pendidikan", ["SD", "SMP", "SMA/SMK", "D3", "S1", "S2", "S3"])
 jenis_kelamin = st.sidebar.selectbox("Jenis Kelamin", ["Laki-laki", "Perempuan"])
-tipe_dm_label = st.sidebar.selectbox("Tipe yang ingin dicari", ["Tipe 1", "Tipe 2", "Edukasi Umum"])
+tipe_dm_label = st.sidebar.selectbox("Tipe yang ingin dicari", ["Edukasi Tipe 1", "Edukasi Tipe 2", "Edukasi Umum"])
 st.sidebar.markdown("""
     <div class="warning-box">
         ⚠️ Hasil rekomendasi ini berbasis kemiripan teks dan bukan merupakan saran medis resmi
@@ -142,8 +142,8 @@ st.sidebar.markdown("""
 # UI → CSV mapping
 label_to_csv_value = {
     "Edukasi Umum": "Umum",
-    "Tipe 1": "Tipe1",
-    "Tipe 2": "Tipe2"
+    "Edukasi Tipe 1": "Tipe1",
+    "Edukasi Tipe 2": "Tipe2"
 }
 
 tipe_dm_csv = label_to_csv_value[tipe_dm_label]
@@ -269,6 +269,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
