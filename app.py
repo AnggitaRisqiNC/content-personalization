@@ -25,15 +25,13 @@ st.markdown("""
 }
 
 .ag-theme-alpine .ag-header {
-    background-color: #FFC0CB !important; /* Pink Muda */
+    background-color: #FFC0CB !important;
 }
-
 .ag-theme-alpine .ag-header-cell {
-    background-color: #FF69B4 !important; /* Hot Pink untuk sel header */
+    background-color: #FF69B4 !important;
 }
-
 .ag-theme-alpine .ag-header-cell-label {
-    color: white !important; /* Warna teks jadi putih agar kontras */
+    color: white !important;
     font-weight: bold !important;
 }
 
@@ -135,7 +133,7 @@ usia = st.sidebar.number_input("Usia Kamu", min_value=1, max_value=120)
 jenjang = st.sidebar.selectbox("Jenjang Pendidikan", ["SD", "SMP", "SMA/SMK", "D3", "S1", "S2", "S3"])
 jenis_kelamin = st.sidebar.selectbox("Jenis Kelamin", ["Laki-laki", "Perempuan"])
 tipe_dm_label = st.sidebar.selectbox("Tipe yang ingin dicari", ["Tipe 1", "Tipe 2", "Edukasi Umum"])
-st.markdown("""
+st.sidebar.markdown("""
     <div class="warning-box">
         ⚠️ Hasil rekomendasi ini berbasis kemiripan teks dan bukan merupakan saran medis resmi
     </div>
@@ -271,6 +269,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
