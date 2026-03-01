@@ -16,16 +16,39 @@ from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFacto
 st.markdown("""
 <style>
 @media (max-width: 768px) {
-    /* Font tetap kecil */
     .ag-cell, .ag-header-cell-label {
         font-size: 12px !important;
     }
-    /* Biar bisa scroll horizontal */
     .ag-root-wrapper {
         overflow-x: auto !important;
     }
 }
+
+.ag-theme-alpine .ag-header {
+    background-color: #FFC0CB !important; /* Pink Muda */
+}
+
+.ag-theme-alpine .ag-header-cell {
+    background-color: #FF69B4 !important; /* Hot Pink untuk sel header */
+}
+
+.ag-theme-alpine .ag-header-cell-label {
+    color: white !important; /* Warna teks jadi putih agar kontras */
+    font-weight: bold !important;
+}
+
+.warning-box {
+    background-color: #ffe066; /* Warna Kuning */
+    padding: 15px;
+    border-radius: 10px;
+    color: #000000;
+    font-weight: bold;
+    font-size: 14px;
+    border-left: 5px solid #f39c12; /* Variasi garis di pinggir */
+    margin: 10px 0px;
+}
 </style>
+
 """, unsafe_allow_html=True)
 
 # --- APP CONFIG ---
@@ -251,6 +274,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
