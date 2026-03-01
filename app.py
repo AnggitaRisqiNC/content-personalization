@@ -36,12 +36,12 @@ st.markdown("""
 }
 
 .warning-box {
-    background-color: #ffe066;
+    background-color: #FBEC5D;
     padding: 10px;
     border-radius: 5px;
     color: #000000;
     font-weight: bold;
-    font-size: 13px;
+    font-size: 15px;
     margin: 10px 0px;
 }
 </style>
@@ -269,6 +269,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
