@@ -15,6 +15,14 @@ from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 st.markdown("""
 <style>
+.stApp {
+    background-color: #e0e0e0;
+}
+
+[data-testid="stSidebar"] {
+    background-color: #d6d6d6;
+}
+    
 @media (max-width: 768px) {
     .ag-cell, .ag-header-cell-label {
         font-size: 12px !important;
@@ -269,6 +277,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
