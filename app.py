@@ -38,13 +38,12 @@ st.markdown("""
 }
 
 .warning-box {
-    background-color: #ffe066; /* Warna Kuning */
-    padding: 15px;
-    border-radius: 10px;
+    background-color: #ffe066;
+    padding: 10px;
+    border-radius: 5px;
     color: #000000;
     font-weight: bold;
-    font-size: 14px;
-    border-left: 5px solid #f39c12; /* Variasi garis di pinggir */
+    font-size: 13px;
     margin: 10px 0px;
 }
 </style>
@@ -136,13 +135,11 @@ usia = st.sidebar.number_input("Usia Kamu", min_value=1, max_value=120)
 jenjang = st.sidebar.selectbox("Jenjang Pendidikan", ["SD", "SMP", "SMA/SMK", "D3", "S1", "S2", "S3"])
 jenis_kelamin = st.sidebar.selectbox("Jenis Kelamin", ["Laki-laki", "Perempuan"])
 tipe_dm_label = st.sidebar.selectbox("Tipe yang ingin dicari", ["Tipe 1", "Tipe 2", "Edukasi Umum"])
-
-# Kotak Peringatan (Warning Box)
 st.markdown("""
-<div class="warning-box">
-    ⚠️ Hasil rekomendasi ini berbasis kemiripan teks dan bukan merupakan saran medis resmi
-</div>
-""", unsafe_allow_html=True)
+    <div class="warning-box">
+        ⚠️ Hasil rekomendasi ini berbasis kemiripan teks dan bukan merupakan saran medis resmi
+    </div>
+    """, unsafe_allow_html=True)
 
 # UI → CSV mapping
 label_to_csv_value = {
@@ -274,6 +271,7 @@ if "table_data" in st.session_state:
             theme='alpine',
             allow_unsafe_jscode=True
         )
+
 
 
 
