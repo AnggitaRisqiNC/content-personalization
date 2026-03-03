@@ -126,7 +126,7 @@ if st.sidebar.button("✨ Tampilkan Rekomendasi", type="primary"):
         # Sort & Filter Top-K
         results = df.sort_values('similarity_score', ascending=False).head(top_k)
         results['display_caption'] = results['caption'].apply(clean_for_human)
-        results['caption_ringkas'] = results['caption'].apply(lambda x: ai_summarize(x, 1))
+        results['caption_ringkas'] = results['display_caption'].apply(lambda x: ai_summarize(x, 1))
 
         # Simpan ke session state agar filter topik bisa jalan
         st.session_state['results'] = results
@@ -185,6 +185,7 @@ if 'results' in st.session_state:
                allow_unsafe_jscode=True, 
                theme='alpine',
                fit_columns_on_grid_load=True)
+
 
 
 
