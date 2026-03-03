@@ -34,8 +34,8 @@ st.markdown("""
 # --- 2. QUERY REFERENSI & KAMUS TOPIK ---
 queries = {
     "Edukasi Tipe 1": "diabetes tipe 1 tipe 1 type 1 dm tipe 1 juvenile autoimun sel beta antibodi genetik suntik insulin injeksi insulin jarum insulin insulin pump ketoasidosis dka keton hipoglikemia gula darah rendah",
-    "Edukasi Tipe 2": "diabetes tipe 2 dm tipe 2 type 2 tipe 2 resistensi insulin obat oral minum obat metformin glibenklamid luka kaki ulkus kaki diabetes kaki busuk gangren amputasi leher hitam acanthosis hipertensi keturunan genetik",
-    "Edukasi Umum": "diabetes kencing manis sakit gula gula darah cek gula kadar gula hba1c glukosa skrining medical check up gejala tanda sering kencing haus terus cepat lapar kesemutan kebas mata kabur pola makan makanan sehat kurangi gula diet sehat minuman manis boba teh manis makanan olahan junk food obesitas kegemukan berat badan turun berat buncit olahraga senam jalan kaki sepeda aktivitas fisik hidup sehat gaya hidup stress tidur cukup edukasi tips sehat kata dokter cegah diabetes"
+    "Edukasi Tipe 2": "diabetes tipe 2 dm tipe 2 type 2 tipe 2 resistensi insulin obat oral minum obat metformin glibenklamid luka kaki ulkus kaki diabetes kaki busuk gangren amputasi leher hitam acanthosis otak polusi kekuatan otot hipertensi keturunan genetik",
+    "Edukasi Umum": "diabetes kencing manis sakit gula gula darah cek gula kadar gula hba1c glukosa skrining medical karbohidrat check up gejala tanda sering kencing haus terus cepat lapar kesemutan kebas mata kabur pola makan makanan sehat kurangi gula diet sehat minuman manis boba teh manis makanan olahan junk food obesitas kegemukan berat badan turun berat buncit olahraga senam jalan kaki sepeda aktivitas fisik hidup sehat gaya hidup stress tidur cukup edukasi tips sehat kata dokter cegah diabetes"
 }
 
 topics_keywords = {
@@ -108,7 +108,7 @@ if st.sidebar.button("✨ Tampilkan Rekomendasi", type="primary"):
 
         # Sort & Filter Top-K
         results = df.sort_values('similarity_score', ascending=False).head(top_k)
-        results['caption_ringkas'] = results['clean_caption_v2'].apply(lambda x: ai_summarize(x, 1))
+        results['caption_ringkas'] = results['caption'].apply(lambda x: ai_summarize(x, 1))
 
         # Simpan ke session state agar filter topik bisa jalan
         st.session_state['results'] = results
@@ -167,6 +167,7 @@ if 'results' in st.session_state:
                allow_unsafe_jscode=True, 
                theme='alpine',
                fit_columns_on_grid_load=True)
+
 
 
 
