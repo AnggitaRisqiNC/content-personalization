@@ -1,300 +1,151 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import requests
 from io import StringIO
-from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
-from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 
-# Text processing / stopwords
-import nltk
-from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
-from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
-st.markdown("""
-<style>
-.stApp {
-    background-color: #e0e0e0;
-}
-
-[data-testid="stSidebar"] {
-    background-color: #d6d6d6;
-}
-    
-@media (max-width: 768px) {
-    .ag-cell, .ag-header-cell-label {
-        font-size: 12px !important;
-    }
-    .ag-root-wrapper {
-        overflow-x: auto !important;
-    }
-}
-
-.ag-theme-alpine .ag-header {
-    background-color: #FFC0CB !important;
-}
-.ag-theme-alpine .ag-header-cell {
-    background-color: #FF69B4 !important;
-}
-.ag-theme-alpine .ag-header-cell-label {
-    color: white !important;
-    font-weight: bold !important;
-}
-
-.warning-box {
-    background-color: #FBEC5D;
-    padding: 10px;
-    border-radius: 5px;
-    color: #000000;
-    font-weight: bold;
-    font-size: 13px;
-    margin: 10px 0px;
-}
-</style>
-
-""", unsafe_allow_html=True)
-
-# --- APP CONFIG ---
+# --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="🩺 Edukasi Diabetes — Recommender", layout="wide")
 
-# --- STOPWORDS SETUP ---
-try:
-    nltk.download('stopwords')
-except:
-    pass
+# Custom CSS biar tetep cantik kayak kemauan kamu
+st.markdown("""
+<style>
+.stApp { background-color: #e0e0e0; }
+[data-testid="stSidebar"] { background-color: #d6d6d6; }
+.ag-theme-alpine .ag-header { background-color: #FFC0CB !important; }
+.ag-theme-alpine .ag-header-cell { background-color: #FF69B4 !important; }
+.ag-theme-alpine .ag-header-cell-label { color: white !important; font-weight: bold !important; }
+.warning-box { background-color: #FBEC5D; padding: 10px; border-radius: 5px; color: #000000; font-weight: bold; margin: 10px 0px; }
+</style>
+""", unsafe_allow_html=True)
 
-try:
-    nltk_stop = set(stopwords.words('indonesian'))
-except:
-    nltk_stop = set()
-
-sastrawi_stop = set(StopWordRemoverFactory().get_stop_words())
-
-custom_ui_stopwords = set([
-    'meta','instagram','profile','profiles','more','also','messages','reply','see','follow',
-    'likes','like','view','shared','sharedby','reels','story','stories','pm','dm','post','posts',
-    'today','yesterday','ago','hrs','hours','d','h','m', 'translation', 'home', 'search', 
-    'explore','notifications', 'create', 'api', 'non', 'english', 'contact', 'blog', 'jobs', 
-    'job', 'help','privacy', 'articles', 'location', 'threads', 'uploading', 'users', 'verified',
-    'start', 'app','conversation', 'locations', 'terms', 'lite', 'official', 'youtube', 'replies',
-    'admin', 'aplikasi','scan', 'code', 'download', 'net', 'mail', 'edited', 'edit'
-])
-
-nama_umum = set([
-    'ratna','anita','hasan','faisal','aman','siti','nur','agus','budi','andi','indah',
-    'rini','dwi','yoga','ika','yuliana','aditya','setiawan','wulandari',
-])
-
-extra_stop = set([
-    'agusafandiik07', 'ara20', 'amanpulungan','adik','akun','aja','aging','academy',
-    'official','perkeni','klikdiabetes','sobatdiabet','halodoc','alodokter',
-    'klikdokter','diabetesinitiative','adityaset1','allah','aplikasialodokter',
-    'mganikcare','pbpersadia','ppperkeni','dengansatuklik','indonesia', 'ayat',
-    'ahlinya', 'ahlinyagizi', 'akibatnya', 'akses', 'aktif', 'aplikasinya',
-    'alat','american','anggap','angka','bacacaption'
-])
-
-bulan_stop = set([
-    'januari','februari','maret','april','mei','juni','juli','agustus',
-    'september','oktober','november','desember',
-    'january','february','march','april','may','june','july',
-    'august','september','october','november','december'
-])
-
-stopwords_all = nltk_stop | sastrawi_stop | ENGLISH_STOP_WORDS | custom_ui_stopwords | nama_umum | extra_stop | bulan_stop
-
-# TOPIC DICTIONARY
-topics_by_type = {
-    "Edukasi Medis": ["gejala", "diabetes tipe", "insulin", "hipoglikemia", "hiperglikemia", "komplikasi", "gula darah", "autoimun", "antibodi", "kekurangan insulin", "onset muda", "ketoasidosis", "injeksi insulin", "pankreas", "sel beta", "komplikasi", "resiko", "edukasi", "diagnosis", "kontrol", "gestasional", "hamil", "autoantibody"],
-    "Nutrisi": ["makan", "makanan", "diet", "kalori", "karbo", "gizi", "protein", "sehat", "pola makan", "menu", "menu sehat", "obesitas", "makanan bergizi", "nutrisi", "gemuk"],
-    "Lifestyle": ["olahraga", "aktif", "jalan", "hidup sehat", "skrining", "manajemen gula", "gaya hidup", "pencegahan", "deteksi dini", "sehat", "stress", "senam", "jogging", "aktivitas"]
+# --- 2. QUERY REFERENSI & KAMUS TOPIK ---
+queries = {
+    "Edukasi Tipe 1": "diabetes tipe 1 tipe 1 type 1 dm tipe 1 juvenile autoimun sel beta antibodi genetik suntik insulin injeksi insulin jarum insulin insulin pump ketoasidosis dka keton hipoglikemia gula darah rendah",
+    "Edukasi Tipe 2": "diabetes tipe 2 dm tipe 2 type 2 tipe 2 resistensi insulin obat oral minum obat metformin glibenklamid luka kaki ulkus kaki diabetes kaki busuk gangren amputasi leher hitam acanthosis hipertensi keturunan genetik",
+    "Edukasi Umum": "diabetes kencing manis sakit gula gula darah cek gula kadar gula hba1c glukosa skrining medical check up gejala tanda sering kencing haus terus cepat lapar kesemutan kebas mata kabur pola makan makanan sehat kurangi gula diet sehat minuman manis boba teh manis makanan olahan junk food obesitas kegemukan berat badan turun berat buncit olahraga senam jalan kaki sepeda aktivitas fisik hidup sehat gaya hidup stress tidur cukup edukasi tips sehat kata dokter cegah diabetes"
 }
 
-# LOAD DATA
+topics_keywords = {
+    "Edukasi Medis": ["insulin", "obat", "metformin", "glukosa", "hba1c", "diagnosis", "gejala", "komplikasi", "tipe", "medis"],
+    "Nutrisi": ["makan", "diet", "karbohidrat", "gula", "kalori", "nutrisi", "buah", "sayur", "protein", "lemak"],
+    "Lifestyle": ["olahraga", "jalan", "senam", "stress", "tidur", "aktivitas", "fisik", "sehat", "hidup", "gaya"]
+}
+
+# --- 3. LOAD DATA ---
 @st.cache_data
 def load_data():
     url = "https://raw.githubusercontent.com/AnggitaRisqiNC/content-personalization/refs/heads/main/data_postdiabetes.csv"
     response = requests.get(url)
-
     if response.status_code == 200:
         df = pd.read_csv(StringIO(response.text))
-        df = df.dropna(subset=["clean_caption_v2"]).reset_index(drop=True)
+        # Pastikan kita pakai kolom yang sudah di-stemming
+        df = df.dropna(subset=["clean_caption_stemmed"]).reset_index(drop=True)
         return df
-    else:
-        st.error("Gagal memuat data dari GitHub 😭")
-        return None
-            
-@st.cache_data
-def fit_vectorizer(texts, max_features=5000, ngram=(1,2)):
-    vec = TfidfVectorizer(stop_words=list(stopwords_all), max_features=max_features, ngram_range=ngram)
-    X = vec.fit_transform(texts)
-    return vec, X
+    return None
 
-# UI
+df = load_data()
+
+# --- 4. SIDEBAR INPUT ---
 st.header("🩺 Sistem Rekomendasi Konten Edukasi Diabetes")
 st.sidebar.header("Isi data kamu dulu 😊")
 
 nama = st.sidebar.text_input("Nama Kamu")
-usia = st.sidebar.number_input("Usia Kamu", min_value=1, max_value=120)
-jenjang = st.sidebar.selectbox("Jenjang Pendidikan", ["SD", "SMP", "SMA/SMK", "D3", "S1", "S2", "S3"])
-jenis_kelamin = st.sidebar.selectbox("Jenis Kelamin", ["Laki-laki", "Perempuan"])
-tipe_dm_label = st.sidebar.selectbox("Tipe yang ingin dicari", ["Edukasi Tipe 1", "Edukasi Tipe 2", "Edukasi Umum"])
-st.sidebar.markdown("""
-    <div class="warning-box">
-        ⚠️ Hasil rekomendasi ini berbasis kemiripan teks dan bukan merupakan saran medis resmi
-    </div>
-    """, unsafe_allow_html=True)
+usia = st.sidebar.number_input("Usia Kamu", 1, 100, 25)
+tipe_dm_label = st.sidebar.selectbox("Pilih Kategori Diabetes", list(queries.keys()))
+top_k = st.sidebar.slider("Top K rekomendasi", 1, 20, 5)
 
-# UI → CSV mapping
-label_to_csv_value = {
-    "Edukasi Umum": "Umum",
-    "Edukasi Tipe 1": "Tipe1",
-    "Edukasi Tipe 2": "Tipe2"
-}
+st.sidebar.markdown('<div class="warning-box">⚠️ Berbasis kemiripan teks (Cosine Similarity)</div>', unsafe_allow_html=True)
 
-tipe_dm_csv = label_to_csv_value[tipe_dm_label]
+# --- 5. FUNGSI IDENTIFIKASI TOPIK ---
+def identify_topic(text):
+    text = str(text).lower()
+    for topic, keywords in topics_keywords.items():
+        if any(word in text for word in keywords):
+            return topic
+    return "Lainnya"
 
-# LOAD TF-IDF
-with st.spinner("Loading data & fitting TF-IDF..."):
-    df = load_data()
-
-    if df is None:
-        st.stop()
-
-    vectorizer, tfidf_matrix = fit_vectorizer(df["clean_caption_v2"].astype(str))
-
-# TOP K SLIDER
-top_k = st.sidebar.slider("Top K rekomendasi", 1, 100, 5)
-
-# FUNCTION: dominant topic
-def get_dominant_topic(text):
-    text = text.lower()
-    best_topic = "Tidak Teridentifikasi"
-    best_score = 0
-
-    for topic, keywords in topics_by_type.items():
-        hits = sum(1 for k in keywords if k in text)
-        if hits > best_score:
-            best_score = hits
-            best_topic = topic
-
-    return best_topic
-
-# BUTTON
+# --- 6. PROSES HITUNG COSINE SIMILARITY ---
 if st.sidebar.button("✨ Tampilkan Rekomendasi", type="primary"):
-
     if not nama:
         st.warning("Isi nama dulu ya 😅")
-
     else:
-        score_map = {
-            "Tipe1": "score_Tipe1",
-            "Tipe2": "score_Tipe2",
-            "Umum": "score_Umum"
-        }
+        # Gabungkan Query dengan Dataset
+        query_text = queries[tipe_dm_label]
+        all_texts = df['clean_caption_stemmed'].tolist()
+        all_texts.append(query_text)
 
-        score_col = score_map[tipe_dm_csv]
+        # Fit TF-IDF
+        vectorizer = TfidfVectorizer()
+        tfidf_matrix = vectorizer.fit_transform(all_texts)
 
-        df_filtered = df[df["predicted_type"] == tipe_dm_csv]
-        df_filtered = df_filtered.sort_values(score_col, ascending=False)
-        results = df_filtered.head(top_k).copy()
+        # Hitung Similarity (Query vs Semua Dokumen)
+        cosine_sim = cosine_similarity(tfidf_matrix[-1:], tfidf_matrix[:-1]).flatten()
 
-        results["topic_category"] = results["clean_caption_v2"].apply(get_dominant_topic)
+        # Ambil hasil
+        df['similarity_score'] = cosine_sim
+        df['topic_category'] = df['clean_caption_stemmed'].apply(identify_topic)
 
-        def truncate(text, max_chars=60):
-            return text[:max_chars] + "..." if len(text) > max_chars else text
+        # Sort & Filter Top-K
+        results = df.sort_values('similarity_score', ascending=False).head(top_k)
 
-        table_data = pd.DataFrame({
-            "No": range(1, len(results)+1),
-            "📌 Akun": results["account"].fillna(""),
-            "📖 Caption": results["clean_caption_v2"].fillna("").apply(truncate),
-            "🔍 Kategori": results["topic_category"],
-            "⭐ Skor": results[score_col].round(4),
-            "🔗 Link": results["url"].fillna("")
-        })
+        # Simpan ke session state agar filter topik bisa jalan
+        st.session_state['results'] = results
+        st.session_state['user_name'] = nama
 
-        st.session_state["table_data"] = table_data
+# --- 7. TAMPILAN TABEL REKOMENDASI ---
+if 'results' in st.session_state:
+    res = st.session_state['results']
+    st.success(f"🎯 Hai {st.session_state['user_name']}, ini konten yang paling mirip dengan {tipe_dm_label}")
 
-        st.markdown(
-            f'<h6 class="mobile-title">🎯 Hai Kak <b>{nama}</b>, berikut rekomendasi terbaik untuk kategori <b>{tipe_dm_label}</b></h6>',
-            unsafe_allow_html=True
-        )
+    # Tambahan Filter Topik (Nutrisi, Lifestyle, Medis)
+    filter_topik = st.selectbox("Saring berdasarkan Topik:", ["Semua", "Nutrisi", "Lifestyle", "Edukasi Medis"])
+    
+    display_df = res.copy()
+    if filter_topik != "Semua":
+        display_df = display_df[display_df['topic_category'] == filter_topik]
 
-# DISPLAY TABLE & FILTER
-if "table_data" in st.session_state:
-
-    table_data = st.session_state["table_data"].copy()
-
-    # Select kategori berdasarkan kolom yang benar
-    category_filter = st.selectbox(
-        "Filter berdasarkan kategori topik",
-        ["Semua"] + list(table_data["🔍 Kategori"].unique())
-    )
-
-    if category_filter != "Semua":
-        table_data = table_data[table_data["🔍 Kategori"] == category_filter]
-
-    if len(table_data) == 0:
-        st.warning("Tidak ada konten yang cocok dengan filter 😭")
-
+    if display_df.empty:
+        st.info("Wah, tidak ada konten dengan topik tersebut di Top-K ini.")
     else:
+        # Setup AgGrid agar tampilannya lucu dan Link bisa diklik
         link_renderer = JsCode("""
         class LinkCellRenderer {
             init(params) {
                 this.eGui = document.createElement('a');
                 this.eGui.href = params.value;
                 this.eGui.target = '_blank';
-                this.eGui.innerText = 'Klik IG';
-                this.eGui.style.color = '#1DA1F2';
+                this.eGui.innerText = '🔗 Buka IG';
+                this.eGui.style.color = '#FF69B4';
+                this.eGui.style.fontWeight = 'bold';
                 this.eGui.style.textDecoration = 'none';
             }
             getGui() { return this.eGui; }
         }
         """)
 
-        gb = GridOptionsBuilder.from_dataframe(table_data)
-        gb.configure_default_column(resizable=True)
-        gb.configure_column("No", width=60)
-        gb.configure_column("📌 Akun", width=90)
-        gb.configure_column(
-            "📖 Caption",
-            width=130,
-            wrapText=True
-        )
-        gb.configure_column("🔍 Kategori", width=90)
-        gb.configure_column("⭐ Skor", width=60)
-        gb.configure_column("🔗 Link", cellRenderer=link_renderer, width=100)
+        # Pilih kolom dan kasih header nama pakai emoji
+        gb = GridOptionsBuilder.from_dataframe(display_df[['account', 'caption', 'topic_category', 'similarity_score', 'url']])
+        
+        # Pengaturan Header dengan Emoji
+        gb.configure_column("account", headerName="👤 Akun Instagram")
+        gb.configure_column("caption", headerName="📝 Isi Konten", wrapText=True, autoHeight=True, width=400)
+        gb.configure_column("topic_category", headerName="🏷️ Topik")
+        gb.configure_column("similarity_score", 
+                            headerName="📊 Skor Sim", 
+                            valueFormatter="x.format('.4f')",
+                            sort="desc") # Biar yang paling mirip otomatis di atas
+        gb.configure_column("url", 
+                            headerName="🌐 Link Post", 
+                            cellRenderer=link_renderer)
 
         gridOptions = gb.build()
 
-        AgGrid(
-            table_data,
-            gridOptions=gridOptions,
-            fit_columns_on_grid_load=False,
-            height=480,
-            theme='alpine',
-            allow_unsafe_jscode=True
-        )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        # Tampilkan Tabel
+        AgGrid(display_df, 
+               gridOptions=gridOptions, 
+               allow_unsafe_jscode=True, 
+               theme='alpine',
+               fit_columns_on_grid_load=True)
