@@ -9,6 +9,7 @@ from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lex_rank import LexRankSummarizer
 import nltk
+import re
 
 # --- PRE-REQUISITES ---
 try:
@@ -75,6 +76,22 @@ def identify_topic(text):
         if any(word in text for word in keywords): return topic
     return "Lainnya"
 
+def clean_for_human(text):
+    text = str(text)
+    
+    lines = text.split('\n')
+    if len(lines) > 1:
+        text = " ".join(lines[1:])
+    text = re.sub(r'\w+\s•\s\w+', '', text)
+    text = re.sub(r'\d+[wmhd]\s', '', text)
+    
+    trash = ["See translation", "View all", "comments", "Profile", "Follow", "likes"]
+    for word in trash:
+        text = text.replace(word, "")
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
+
 def ai_summarize(text, sentence_count=1):
     if len(str(text)) > 200:
         try:
@@ -108,6 +125,7 @@ if st.sidebar.button("✨ Tampilkan Rekomendasi", type="primary"):
 
         # Sort & Filter Top-K
         results = df.sort_values('similarity_score', ascending=False).head(top_k)
+        results['display_caption'] = results['caption'].apply(clean_for_human)
         results['caption_ringkas'] = results['caption'].apply(lambda x: ai_summarize(x, 1))
 
         # Simpan ke session state agar filter topik bisa jalan
@@ -167,6 +185,7 @@ if 'results' in st.session_state:
                allow_unsafe_jscode=True, 
                theme='alpine',
                fit_columns_on_grid_load=True)
+
 
 
 
