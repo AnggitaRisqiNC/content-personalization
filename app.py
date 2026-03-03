@@ -5,6 +5,16 @@ from io import StringIO
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lex_rank import LexRankSummarizer
+import nltk
+
+# --- PRE-REQUISITES ---
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
 
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="🩺 Edukasi Diabetes — Recommender", layout="wide")
@@ -59,13 +69,21 @@ top_k = st.sidebar.slider("Top K rekomendasi", 1, 20, 5)
 
 st.sidebar.markdown('<div class="warning-box">⚠️ Hasil rekomendasi ini berbasis kemiripan teks (Cosine Similarity) dan bukan merupakan saran medis resmi</div>', unsafe_allow_html=True)
 
-# --- 5. FUNGSI IDENTIFIKASI TOPIK ---
 def identify_topic(text):
     text = str(text).lower()
     for topic, keywords in topics_keywords.items():
-        if any(word in text for word in keywords):
-            return topic
+        if any(word in text for word in keywords): return topic
     return "Lainnya"
+
+def ai_summarize(text, sentence_count=1):
+    if len(str(text)) > 200:
+        try:
+            parser = PlaintextParser.from_string(text, Tokenizer("indonesian"))
+            summarizer = LexRankSummarizer()
+            summary = summarizer(parser.document, sentence_count)
+            return " ".join([str(s) for s in summary])
+        except: return str(text)[:150] + "..."
+    return text
 
 # --- 6. PROSES HITUNG COSINE SIMILARITY ---
 if st.sidebar.button("✨ Tampilkan Rekomendasi", type="primary"):
@@ -90,25 +108,19 @@ if st.sidebar.button("✨ Tampilkan Rekomendasi", type="primary"):
 
         # Sort & Filter Top-K
         results = df.sort_values('similarity_score', ascending=False).head(top_k)
+        results['caption_ringkas'] = results['clean_caption_v2'].apply(lambda x: ai_summarize(x, 1))
 
         # Simpan ke session state agar filter topik bisa jalan
         st.session_state['results'] = results
         st.session_state['user_name'] = nama
 
-def ringkas_caption(text, length=150):
-    text = str(text)
-    if len(text) > length:
-        return text[:length] + "..."
-    return text
-
 # --- 7. TAMPILAN TABEL REKOMENDASI ---
 if 'results' in st.session_state:
     res = st.session_state['results']
     st.success(f"🎯 Hai {st.session_state['user_name']}, ini konten yang paling mirip dengan {tipe_dm_label}")
-
+  
     # Tambahan Filter Topik (Nutrisi, Lifestyle, Medis)
     filter_topik = st.selectbox("Saring berdasarkan Topik:", ["Semua", "Nutrisi", "Lifestyle", "Edukasi Medis"])
-    res['caption_ringkas'] = res['clean_caption_stemmed'].apply(lambda x: ringkas_caption(x, 150))
     display_df = res.copy()
     if filter_topik != "Semua":
         display_df = display_df[display_df['topic_category'] == filter_topik]
@@ -155,6 +167,7 @@ if 'results' in st.session_state:
                allow_unsafe_jscode=True, 
                theme='alpine',
                fit_columns_on_grid_load=True)
+
 
 
 
