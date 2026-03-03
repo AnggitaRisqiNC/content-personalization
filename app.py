@@ -28,7 +28,7 @@ st.markdown("""
 .ag-theme-alpine .ag-header { background-color: #FFC0CB !important; }
 .ag-theme-alpine .ag-header-cell { background-color: #FF69B4 !important; }
 .ag-theme-alpine .ag-header-cell-label { color: white !important; font-weight: bold !important; }
-.warning-box { background-color: #FBEC5D; padding: 10px; border-radius: 5px; color: #000000; font-weight: bold; margin: 10px 0px; }
+.warning-box { background-color: #FBEC5D; padding: 10px; border-radius: 5px; color: #000000; font-weight: bold; margin: 10px 0px; font-size: 13px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -185,6 +185,7 @@ if 'results' in st.session_state:
                allow_unsafe_jscode=True, 
                theme='alpine',
                fit_columns_on_grid_load=True)
+
 
 
 
