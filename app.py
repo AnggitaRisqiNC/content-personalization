@@ -95,6 +95,12 @@ if st.sidebar.button("✨ Tampilkan Rekomendasi", type="primary"):
         st.session_state['results'] = results
         st.session_state['user_name'] = nama
 
+def ringkas_caption(text, length=150):
+    text = str(text)
+    if len(text) > length:
+        return text[:length] + "..."
+    return text
+
 # --- 7. TAMPILAN TABEL REKOMENDASI ---
 if 'results' in st.session_state:
     res = st.session_state['results']
@@ -102,7 +108,7 @@ if 'results' in st.session_state:
 
     # Tambahan Filter Topik (Nutrisi, Lifestyle, Medis)
     filter_topik = st.selectbox("Saring berdasarkan Topik:", ["Semua", "Nutrisi", "Lifestyle", "Edukasi Medis"])
-    
+    res['caption_ringkas'] = res['clean_caption_stemmed'].apply(lambda x: ringkas_caption(x, 150))
     display_df = res.copy()
     if filter_topik != "Semua":
         display_df = display_df[display_df['topic_category'] == filter_topik]
@@ -127,11 +133,11 @@ if 'results' in st.session_state:
         """)
 
         # Pilih kolom dan kasih header nama pakai emoji
-        gb = GridOptionsBuilder.from_dataframe(display_df[['account', 'clean_caption_stemmed', 'topic_category', 'similarity_score', 'url']])
+        gb = GridOptionsBuilder.from_dataframe(display_df[['account', 'caption_ringkas', 'topic_category', 'similarity_score', 'url']])
         
         # Pengaturan Header dengan Emoji
         gb.configure_column("account", headerName="👤 Akun Instagram")
-        gb.configure_column("clean_caption_stemmed", headerName="📝 Isi Konten", wrapText=True, autoHeight=True, width=400)
+        gb.configure_column("caption_ringkas", headerName="📝 Inti Konten", wrapText=True, autoHeight=True, width=400)
         gb.configure_column("topic_category", headerName="🏷️ Topik")
         gb.configure_column("similarity_score", 
                             headerName="📊 Skor Sim", 
@@ -149,6 +155,7 @@ if 'results' in st.session_state:
                allow_unsafe_jscode=True, 
                theme='alpine',
                fit_columns_on_grid_load=True)
+
 
 
 
