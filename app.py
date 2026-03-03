@@ -131,7 +131,7 @@ if 'results' in st.session_state:
         
         # Pengaturan Header dengan Emoji
         gb.configure_column("account", headerName="👤 Akun Instagram")
-        gb.configure_column("caption", headerName="📝 Isi Konten", wrapText=True, autoHeight=True, width=400)
+        gb.configure_column("clean_caption_stemmed", headerName="📝 Isi Konten", wrapText=True, autoHeight=True, width=400)
         gb.configure_column("topic_category", headerName="🏷️ Topik")
         gb.configure_column("similarity_score", 
                             headerName="📊 Skor Sim", 
@@ -149,4 +149,5 @@ if 'results' in st.session_state:
                allow_unsafe_jscode=True, 
                theme='alpine',
                fit_columns_on_grid_load=True)
+
 
