@@ -9,7 +9,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="🩺 Edukasi Diabetes — Recommender", layout="wide")
 
-# Custom CSS biar tetep cantik kayak kemauan kamu
+# Custom CSS
 st.markdown("""
 <style>
 .stApp { background-color: #e0e0e0; }
@@ -149,5 +149,6 @@ if 'results' in st.session_state:
                allow_unsafe_jscode=True, 
                theme='alpine',
                fit_columns_on_grid_load=True)
+
 
 
