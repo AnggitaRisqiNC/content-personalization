@@ -57,7 +57,7 @@ usia = st.sidebar.number_input("Usia Kamu", 1, 100, 25)
 tipe_dm_label = st.sidebar.selectbox("Pilih Kategori Diabetes", list(queries.keys()))
 top_k = st.sidebar.slider("Top K rekomendasi", 1, 20, 5)
 
-st.sidebar.markdown('<div class="warning-box">⚠️ Berbasis kemiripan teks (Cosine Similarity)</div>', unsafe_allow_html=True)
+st.sidebar.markdown('<div class="warning-box">⚠️ Hasil rekomendasi ini berbasis kemiripan teks (Cosine Similarity) dan bukan merupakan saran medis resmi</div>', unsafe_allow_html=True)
 
 # --- 5. FUNGSI IDENTIFIKASI TOPIK ---
 def identify_topic(text):
@@ -110,7 +110,7 @@ if 'results' in st.session_state:
     if display_df.empty:
         st.info("Wah, tidak ada konten dengan topik tersebut di Top-K ini.")
     else:
-        # Setup AgGrid agar tampilannya lucu dan Link bisa diklik
+        # Setup AgGrid
         link_renderer = JsCode("""
         class LinkCellRenderer {
             init(params) {
@@ -127,7 +127,7 @@ if 'results' in st.session_state:
         """)
 
         # Pilih kolom dan kasih header nama pakai emoji
-        gb = GridOptionsBuilder.from_dataframe(display_df[['account', 'caption', 'topic_category', 'similarity_score', 'url']])
+        gb = GridOptionsBuilder.from_dataframe(display_df[['account', 'clean_caption_stemmed', 'topic_category', 'similarity_score', 'url']])
         
         # Pengaturan Header dengan Emoji
         gb.configure_column("account", headerName="👤 Akun Instagram")
@@ -149,3 +149,4 @@ if 'results' in st.session_state:
                allow_unsafe_jscode=True, 
                theme='alpine',
                fit_columns_on_grid_load=True)
+
